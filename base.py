@@ -27,9 +27,8 @@ class Arena(metaclass=BaseSingleton):
 
     def next_turn(self):
         """ следующий раунд"""
-        result = self._check_players_hp()
-        if result:
-            return result
+        if self._check_players_hp():
+            return self._check_players_hp()
         if self.game_is_running:
             self._stamina_regeneration()
             self.player.stamina = round(self.player.stamina, 1)
