@@ -15,12 +15,9 @@ class BaseSingleton(type):
 class Arena(metaclass=BaseSingleton):
     """ Поле боя"""
     STAMINA_PER_ROUND = 1
-    player = None
-    enemy = None
+    player = BaseUnit
+    enemy = BaseUnit
     game_is_running = False
-
-    def __init__(self, battle_result):
-        self.battle_result = battle_result
 
     def start_game(self, player: BaseUnit, enemy: BaseUnit):
         """ Начало игры"""
@@ -28,16 +25,18 @@ class Arena(metaclass=BaseSingleton):
         self.enemy = enemy
         self.game_is_running = True
 
-    def _check_players_hp(self):
-        if self.player.hp <= 0 and self.enemy.hp <= 0:
-            self.battle_result = "В этой битве нет победителя!"
-        return self._end_game()
-        if self.player.hp <= 0:
-            self.battle_result = "Игрок проиграл битву!"
-        return self._end_game()
-        if self.enemy.hp <= 0:
-            self.battle_result = "Игрок выиграл битву!"
-        return self._end_game()
+    def next_turn(self):
+        """ следующий раунд"""
+        result = self._check_players_hp()
+        if result:
+            return result
+        if self.game_is_running:
+            self._stamina_regeneration()
+            self.player.stamina = round(self.player.stamina, 1)
+            self.enemy.stamina = round(self.enemy.stamina, 1)
+            self.player.hp_points = round(self.player.hp_points, 1)
+            self.enemy.hp_points = round(self.enemy.hp_points, 1)
+            return self.enemy.hit(self.player)
 
     def _stamina_regeneration(self):
         """ Востановление стамины"""
@@ -50,31 +49,33 @@ class Arena(metaclass=BaseSingleton):
         elif self.enemy.stamina < self.enemy.unit_class.max_stamina:
             self.enemy.stamina += self.STAMINA_PER_ROUND
 
-    def next_turn(self):
-        """ следующий раунд"""
-        result = self._check_players_hp()
-        if result:
-            return result
-        if self.game_is_running:
-            self._stamina_regeneration()
-            self.player.stamina = round(self.player.stamina, 1)
-            self.enemy.stamina = round(self.enemy.stamina, 1)
-            self.player.hp = round(self.player.hp, 1)
-            self.enemy.hp = round(self.enemy.hp, 1)
-        return self.enemy.hit(self.player)
+    def _check_players_hp(self):
+        """завершение боя"""
+        if self.player.hp_points <= 0 and self.enemy.hp_points <= 0:
+            self.battle_result = f'Ничья между {self.player.name} и {self.enemy.name}!'
+            return self._end_game()
+        if self.player.hp_points >= 0 >= self.enemy.hp_points:
+            self.battle_result = f'{self.player.name} победил {self.enemy.name}'
+            return self._end_game()
+        if self.player.hp_points <= 0 <= self.enemy.hp_points:
+            self.battle_result = f'{self.player.name} проиграл {self.enemy.name}'
+            return self._end_game()
 
-    def _end_game(self) -> str:
+    def _end_game(self):
         """ Конец игры"""
-        _instances = {}
+        self._instances = {}
+        result = self.battle_result
         self.game_is_running = False
-        return self.battle_result
+        return result
 
-    def player_hit(self) -> str:
-        """ попадание игрока"""
+    def player_hit(self):
+        """ Атака игрока и след. ход"""
         result = self.player.hit(self.enemy)
-        return f"{result}\n{self.next_turn()}"
+        turn_result = self.next_turn()
+        return f"{result}\n{turn_result}"
 
-    def player_use_skill(self) -> str:
-        """ Использует скилла играком"""
+    def player_use_skill(self):
+        """ Использование спец. умения"""
         result = self.player.use_skill(self.enemy)
-        return f"{result}\n{self.next_turn()}"
+        turn_result = self.next_turn()
+        return f"{result}\n{turn_result}"

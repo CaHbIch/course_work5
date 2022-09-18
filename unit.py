@@ -18,7 +18,7 @@ class BaseUnit(ABC):
         """
         self.name = name
         self.unit_class = unit_class
-        self.hp = unit_class.max_health
+        self.hp_points = unit_class.max_health
         self.stamina = unit_class.max_stamina
         self.weapon = Equipment().get_weapon("ладошки")
         self.armor = Equipment().get_armor('футболка')
@@ -27,7 +27,7 @@ class BaseUnit(ABC):
     @property
     def health_points(self):
         """ Уровень hp"""
-        return round(self.hp, 1)
+        return round(self.hp_points, 1)
 
     @property
     def stamina_points(self):
@@ -59,8 +59,8 @@ class BaseUnit(ABC):
     def get_damage(self, damage: int) -> Optional[int]:
         """Получение урона"""
         if damage > 0:
-            self.hp -= damage
-            self.hp = self.hp
+            self.hp_points -= damage
+            self.hp_points = self.hp_points
             return round(damage, 1)
         return None
 
