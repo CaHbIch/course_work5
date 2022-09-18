@@ -27,8 +27,9 @@ class Arena(metaclass=BaseSingleton):
 
     def next_turn(self):
         """ следующий раунд"""
-        if self._check_players_hp():
-            return self._check_players_hp()
+        result = self._check_players_hp()
+        if result:
+            return result
         if self.game_is_running:
             self._stamina_regeneration()
             self.player.stamina = round(self.player.stamina, 1)
@@ -52,13 +53,13 @@ class Arena(metaclass=BaseSingleton):
         """завершение боя"""
         if self.player.hit_points <= 0 and self.enemy.hit_points <= 0:
             self.battle_result = f'Ничья между {self.player.name} и {self.enemy.name}!'
-            return self._end_game()
-        if self.player.hit_points >= 0 >= self.enemy.hit_points:
+        elif self.player.hit_points >= 0 >= self.enemy.hit_points:
             self.battle_result = f'{self.player.name} победил {self.enemy.name}'
-            return self._end_game()
-        if self.player.hit_points <= 0 <= self.enemy.hit_points:
+        elif self.player.hit_points <= 0 <= self.enemy.hit_points:
             self.battle_result = f'{self.player.name} проиграл {self.enemy.name}'
-            return self._end_game()
+        elif self.player.hit_points and self.enemy.hit_points >= 0:
+            return None
+        return self._end_game()
 
     def _end_game(self):
         """ Конец игры"""
