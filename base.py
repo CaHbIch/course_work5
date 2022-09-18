@@ -33,8 +33,8 @@ class Arena(metaclass=BaseSingleton):
             self._stamina_regeneration()
             self.player.stamina = round(self.player.stamina, 1)
             self.enemy.stamina = round(self.enemy.stamina, 1)
-            self.player.hp_points = round(self.player.hp_points, 1)
-            self.enemy.hp_points = round(self.enemy.hp_points, 1)
+            self.player.hit_points = round(self.player.hit_points, 1)
+            self.enemy.hit_points = round(self.enemy.hit_points, 1)
             return self.enemy.hit(self.player)
 
     def _stamina_regeneration(self):
@@ -50,13 +50,13 @@ class Arena(metaclass=BaseSingleton):
 
     def _check_players_hp(self):
         """завершение боя"""
-        if self.player.hp_points <= 0 and self.enemy.hp_points <= 0:
+        if self.player.hit_points <= 0 and self.enemy.hit_points <= 0:
             self.battle_result = f'Ничья между {self.player.name} и {self.enemy.name}!'
             return self._end_game()
-        if self.player.hp_points >= 0 >= self.enemy.hp_points:
+        if self.player.hit_points >= 0 >= self.enemy.hit_points:
             self.battle_result = f'{self.player.name} победил {self.enemy.name}'
             return self._end_game()
-        if self.player.hp_points <= 0 <= self.enemy.hp_points:
+        if self.player.hit_points <= 0 <= self.enemy.hit_points:
             self.battle_result = f'{self.player.name} проиграл {self.enemy.name}'
             return self._end_game()
 
